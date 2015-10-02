@@ -1,0 +1,24 @@
+GIT
+  remote: git://github.com/carter/n0nbh.git
+  revision: 6610b31d2fded7f835c5ba28be6411848bac3863
+  specs:
+    n0nbh (0.0.0)
+      nokogiri
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    cinch (2.2.7)
+    mini_portile (0.6.2)
+    nokogiri (1.6.6.2)
+      mini_portile (~> 0.6.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  cinch
+  n0nbh!
+
+BUNDLED WITH
+   1.10.6
