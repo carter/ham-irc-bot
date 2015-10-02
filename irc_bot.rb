@@ -1,12 +1,21 @@
 require 'cinch'
 gem 'n0nbh'
 require 'n0nbh'
+require "cinch/plugins/identify"
+
 
 bot = Cinch::Bot.new do
   configure do |c|
     c.server = "irc.geekshed.net"
     c.channels = ["#hamtest123", "#fbom", "#redditnet"]
     c.nick = "HamBone"
+     # add all required options here
+    c.plugins.plugins = [Cinch::Plugins::Identify] # optionally add more plugins
+    c.plugins.options[Cinch::Plugins::Identify] = {
+      :username => "HamBone",
+      :password => "changethis",
+      :type     => :nickserv,
+    }
   end
 
   on :message, "!geo" do |m|
