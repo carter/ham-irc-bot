@@ -3,11 +3,29 @@ gem 'n0nbh'
 require 'n0nbh'
 require "cinch/plugins/identify"
 
+require 'cinch/message'
+
+module Cinch
+  class Message 
+    def reply(text, prefix = false)
+      if Time.now.utc.friday?
+        text = text.upcase
+      end
+
+      text = text.to_s
+      if @channel && prefix
+        text = text.split("\n").map {|l| "#{user.nick}: #{l}"}.join("\n")
+      end
+
+      @target.send(text)
+    end
+  end
+end
 
 bot = Cinch::Bot.new do
   configure do |c|
     c.server = "irc.geekshed.net"
-    c.channels = ["#hamtest123", "#fbom", "#redditnet"]
+    c.channels = ["#redditnet", "#fbom" ]
     c.nick = "HamBone"
      # add all required options here
     c.plugins.plugins = [Cinch::Plugins::Identify] # optionally add more plugins
