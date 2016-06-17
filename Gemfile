@@ -1,7 +1,8 @@
 source 'http://rubygems.org'
 
-gem 'n0nbh', :github => 'carter/n0nbh'
+gem 'ruby-ham', :github => 'carter/ruby-ham'
 gem 'qrz-callbook'
 gem 'cinch'
 gem 'cinch-identify'
+gem 'actionview'
 

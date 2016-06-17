@@ -1,7 +1,10 @@
 require 'cinch'
 
-gem 'n0nbh'
+gem 'ruby-ham'
 require 'n0nbh'
+require 'npota'
+require 'aprsfi'
+require 'dxwatch'
 
 gem 'qrz-callbook'
 require 'qrz-callbook'
@@ -9,6 +12,9 @@ require 'qrz-callbook'
 require "cinch/plugins/identify"
 require 'cinch/message'
 
+require 'action_view'
+require 'action_view/helpers'
+include ActionView::Helpers::DateHelper
 
 module Cinch
   class Message 
@@ -30,12 +36,12 @@ end
 bot = Cinch::Bot.new do
   configure do |c|
     c.server = "irc.geekshed.net"
-    c.channels = ["#test123" ]
+    c.channels = ["#test123"]
     c.nick = "HamBone"
      # add all required options here
     c.plugins.plugins = [Cinch::Plugins::Identify] # optionally add more plugins
     c.plugins.options[Cinch::Plugins::Identify] = {
-      :username => "HamBone",
+      :username => "HamBone2",
       :password => "changethis",
       :type     => :nickserv,
     }
@@ -85,6 +91,85 @@ bot = Cinch::Bot.new do
       response = e.message
     end
     m.reply "#{m.user.nick}: #{response}"
+  end
+
+  on :message, /^!npota activations (.*)/i do |m, callsign|
+    activations = NPOTA.activations_by_callsign(callsign)
+    if activations.any?
+      m.reply "#{m.user.nick}: #{activations.length} upcoming activations by #{callsign}"
+      activations[0..1].each do |a|
+        m.reply "#{a['Name']} #{a['Type']} (#{a['ARRLCode']}): #{a['StartDate']}Z - #{a['EndDate']}Z - #{a['Comments']}"
+      end
+    else 
+      m.reply "#{m.user.nick}: There are no upcoming activations by #{callsign}"
+    end
+  end
+
+  on :message, /^!hogie/i do |m|
+    
+    callsign = 'N3BBQ-9'
+    location = APRSfi.last_location_for(callsign)
+
+    if location
+      m.reply "#{m.user.nick}: Last APRS Beacon for #{callsign} at #{location['geocoded'][0].address} (#{location['lat']}, #{location['lng']}) - #{time_ago_in_words(location['time'])} ago - http://aprs.fi/#!mt=roadmap&z=13&call=a%2F#{callsign}&timerange=604800&tail=604800"
+    else
+      m.reply "#{m.user.nick}: No APRS locations found"
+    end
+
+    callsign = 'N3BBQ'
+
+    spots = DXWatch.spots_for(callsign)
+
+    begin
+      if spots
+        spots[0..0].each do |s|
+          m.reply "Last Spot: #{s[:frequency]} - #{s[:comment]} - (spotted by #{s[:de]} #{time_ago_in_words(s[:time])} ago)"
+        end
+      else
+        m.reply "No spots found"
+      end
+    rescue OpenURI::HTTPError
+      m.reply "Spots unavailable. Try again later"
+    end
+
+    activations = NPOTA.activations_by_callsign(callsign)
+    if activations.any?
+      m.reply "Upcoming activations by #{callsign}"
+      activations.each do |a|
+        start_date = DateTime.parse(a['StartDate'] + ' UTC').to_time
+        end_date = DateTime.parse(a['EndDate'] + ' UTC').to_time
+        next if Time.now > end_date
+        next if (start_date  - Time.now) > 60*60*24 # dont show if less than 24hr
+        m.reply "#{a['Name']} #{a['Type']} (#{a['ARRLCode']}): #{a['StartDate']}Z - #{a['EndDate']}Z - #{a['Comments']}"
+      end
+    end
+  end
+
+  on :message, /^!aprs (.*)/i do |m, callsign|
+    location = APRSfi.last_location_for(callsign)
+
+    if location
+      m.reply "#{m.user.nick}: Last APRS Beacon for #{callsign} at #{location['geocoded'][0].address} (#{location['lat']}, #{location['lng']}) - #{time_ago_in_words(location['time'])} ago - http://aprs.fi/#!mt=roadmap&z=13&call=a%2F#{callsign}&timerange=604800&tail=604800"
+    else
+      m.reply "#{m.user.nick}: No APRS locations found"
+    end
+  end
+
+  on :message, /^!spots (.*)/i do |m, callsign|
+    spots = DXWatch.spots_for(callsign)
+
+    begin
+      if spots
+        m.reply "#{m.user.nick}: Spots for #{callsign}"
+        spots[0..2].each do |s|
+          m.reply "#{s[:frequency]} - #{s[:comment]} - (spotted by #{s[:de]} #{time_ago_in_words(s[:time])} ago)"
+        end
+      else
+        m.reply "#{m.user.nick}: No spots found"
+      end
+    rescue OpenURI::HTTPError
+      m.reply "#{m.user.nick}: Try again later"
+    end
   end
 end
 
