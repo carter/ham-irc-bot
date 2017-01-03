@@ -5,4 +5,6 @@ gem 'qrz-callbook'
 gem 'cinch'
 gem 'cinch-identify'
 gem 'actionview'
+gem 'forecast_io'
+gem 'geocoder'
 

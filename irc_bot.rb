@@ -9,6 +9,13 @@ require 'dxwatch'
 gem 'qrz-callbook'
 require 'qrz-callbook'
 
+gem 'forecast_io'
+require 'forecast_io'
+ForecastIO.api_key = ''
+
+gem 'geocoder'
+require 'geocoder'
+
 require "cinch/plugins/identify"
 require 'cinch/message'
 
@@ -33,6 +40,28 @@ module Cinch
   end
 end
 
+def wind_direction(degrees)
+  case degrees
+  when 22.5..67.5
+    "↙"
+  when 67.5..112.5
+    "←"
+  when 112.5..157.5
+    "↖"
+  when 157.5..202.5
+    "↑"
+  when 202.5..247.5
+    "↗"
+  when 247.5..292.5
+    "→"
+  when 292.5..337.5
+    "↘"
+  else
+    "↓"
+  end
+end
+
+
 bot = Cinch::Bot.new do
   configure do |c|
     c.server = "irc.geekshed.net"
@@ -48,7 +77,7 @@ bot = Cinch::Bot.new do
   end
   
   on :message, /^!help$/i do |m|
-    m.reply "#{m.user.nick}: !hf - band conditions, !geo - solar conditions, !callsign <CALL> - callsign info"
+    m.reply "#{m.user.nick}: !hf - band conditions, !geo - solar conditions, !callsign <CALL> - callsign info, !wx <LOCATION> - weather for a place"
   end
 
   on :message, /^!geo$/i do |m|
@@ -170,6 +199,17 @@ bot = Cinch::Bot.new do
     rescue OpenURI::HTTPError
       m.reply "#{m.user.nick}: Try again later"
     end
+  end
+
+  on :message, /^!wx (.*)/i do |m, callsign|
+    latlng = Geocoder.search('Laramie')
+    location = latlng[0].data['formatted_address']
+    lat = latlng[0].data['geometry']['location']['lat']
+    lng = latlng[0].data['geometry']['location']['lng']
+    forecast = ForecastIO.forecast(lat, lng)
+    m.reply "#{m.user.nick}: Weather for #{location}: #{forecast.currently.summary} - #{forecast.currently.temperature.round(0)}˚F - Wind: #{forecast.currently.windSpeed}mph #{wind_direction(forecast.currently.windBearing)} - #{(forecast.currently.humidity*100).to_i}% humidity#{forecast.currently.precipProbability > 0 ? ' - ' + (forecast.currently.precipProbability*100).to_i.to_s + '% chance ' + forecast.currently.precipType + ' now - ' : ''}"
+    m.reply "Today: #{forecast.daily.data[0].summary}, High of #{forecast.daily.data[0].temperatureMax.to_i}˚F, Low of #{forecast.daily.data[0].temperatureMin.to_i}˚F"
+    m.reploy "Tomorrow: #{forecast.daily.data[1].summary}, High of #{forecast.daily.data[1].temperatureMax.to_i}˚F, Low of #{forecast.daily.data[1].temperatureMin.to_i}˚F"
   end
 end
 
