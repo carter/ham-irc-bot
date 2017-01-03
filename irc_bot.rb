@@ -64,6 +64,7 @@ end
 
 bot = Cinch::Bot.new do
   configure do |c|
+    c.delay_joins = 5
     c.server = "irc.geekshed.net"
     c.channels = ["#test123"]
     c.nick = "HamBone"
@@ -209,7 +210,7 @@ bot = Cinch::Bot.new do
     forecast = ForecastIO.forecast(lat, lng)
     m.reply "#{m.user.nick}: Weather for #{location}: #{forecast.currently.summary} - #{forecast.currently.temperature.round(0)}˚F - Wind: #{forecast.currently.windSpeed}mph #{wind_direction(forecast.currently.windBearing)} - #{(forecast.currently.humidity*100).to_i}% humidity#{forecast.currently.precipProbability > 0 ? ' - ' + (forecast.currently.precipProbability*100).to_i.to_s + '% chance ' + forecast.currently.precipType + ' now - ' : ''}"
     m.reply "Today: #{forecast.daily.data[0].summary}, High of #{forecast.daily.data[0].temperatureMax.to_i}˚F, Low of #{forecast.daily.data[0].temperatureMin.to_i}˚F"
-    m.reploy "Tomorrow: #{forecast.daily.data[1].summary}, High of #{forecast.daily.data[1].temperatureMax.to_i}˚F, Low of #{forecast.daily.data[1].temperatureMin.to_i}˚F"
+    m.reply "Tomorrow: #{forecast.daily.data[1].summary}, High of #{forecast.daily.data[1].temperatureMax.to_i}˚F, Low of #{forecast.daily.data[1].temperatureMin.to_i}˚F"
   end
 end
 
