@@ -202,8 +202,8 @@ bot = Cinch::Bot.new do
     end
   end
 
-  on :message, /^!wx (.*)/i do |m, callsign|
-    latlng = Geocoder.search('Laramie')
+  on :message, /^!wx (.*)/i do |m, wx_input|
+    latlng = Geocoder.search(wx_input)
     location = latlng[0].data['formatted_address']
     lat = latlng[0].data['geometry']['location']['lat']
     lng = latlng[0].data['geometry']['location']['lng']
