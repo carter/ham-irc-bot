@@ -88,6 +88,10 @@ bot = Cinch::Bot.new do
   on :message, /^!w0ny$/i do |m|
     m.reply "W0NY is a p0ny!"
   end
+  
+  on :message, /^!kd9dal$/i do |m|
+    m.reply "cuntbunt"
+  end
 
   on :message, /^!hf$/i do |m|
     m.reply "HF Conditions"
