@@ -93,6 +93,10 @@ bot = Cinch::Bot.new do
     m.reply "cuntbunt"
   end
 
+   on :message, /^!bingbong$/i do |m|
+    m.reply "CHINA!"
+  end
+  
   on :message, /^!hf$/i do |m|
     m.reply "HF Conditions"
     m.reply "Band     Day   Night"
