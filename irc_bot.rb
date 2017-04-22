@@ -101,6 +101,10 @@ bot = Cinch::Bot.new do
     m.reply "SWAGRID"
   end
   
+   on :message, /^!tj$/i do |m|
+    m.reply "IT PREASE"
+  end
+  
   on :message, /^!hf$/i do |m|
     m.reply "HF Conditions"
     m.reply "Band     Day   Night"
