@@ -113,7 +113,7 @@ bot = Cinch::Bot.new do
     m.reply "JUUUIIICCCEEEE BOOOOOOOOXXXXXX!!!!!11!!!"
   end
   
-   on :message, /^!joj%/i do |m|
+   on :message, /^!joj$/i do |m|
     m.reply "Dave's not here!"
   end
   
