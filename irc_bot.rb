@@ -109,6 +109,14 @@ bot = Cinch::Bot.new do
     m.reply "RF 2 STRONK"
   end
   
+   on :message, /^!b0tz$/i do |m|
+    m.reply "JUUUIIICCCEEEE BOOOOOOOOXXXXXX!!!!!11!!!"
+  end
+  
+   on :message, /^!joj%/i do |m|
+    m.reply "Dave's not here!"
+  end
+  
   on :message, /^!hf$/i do |m|
     m.reply "HF Conditions"
     m.reply "Band     Day   Night"
