@@ -105,6 +105,10 @@ bot = Cinch::Bot.new do
     m.reply "IT PREASE"
   end
   
+   on :message, /^!kilo$/i do |m|
+    m.reply "RF 2 STRONK"
+  end
+  
   on :message, /^!hf$/i do |m|
     m.reply "HF Conditions"
     m.reply "Band     Day   Night"
