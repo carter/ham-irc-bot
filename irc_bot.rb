@@ -24,7 +24,7 @@ require 'action_view/helpers'
 include ActionView::Helpers::DateHelper
 
 module Cinch
-  class Message 
+  class Message
     def reply(text, prefix = false)
       if Time.now.utc.friday?
         text = text.upcase
@@ -76,7 +76,7 @@ bot = Cinch::Bot.new do
       :type     => :nickserv,
     }
   end
-  
+
   on :message, /^!help$/i do |m|
     m.reply "#{m.user.nick}: !hf - band conditions, !geo - solar conditions, !callsign <CALL> - callsign info, !wx <LOCATION> - weather for a place"
   end
@@ -84,39 +84,7 @@ bot = Cinch::Bot.new do
   on :message, /^!geo$/i do |m|
     m.reply "Solar Terrestrial Data - Solar Flux: #{N0nbh['solarflux']} - A-Index: #{N0nbh['aindex']} - K-Index: #{N0nbh['kindex']} / #{N0nbh['kindexnt']} - X-Ray: #{N0nbh['xray']} - Sunspots: #{N0nbh['sunspots']} - Helium Line: #{N0nbh['heliumline']} - Proton Flux: #{N0nbh['protonflux']} - Electron Flux: #{N0nbh['electonflux']} - Aurora: #{N0nbh['aurora']} - Normalization: #{N0nbh['normalization']} - Magnetic Field: #{N0nbh['magneticfield']} - Solar Wind: #{N0nbh['solarwind']} - http://n0nbh.com"
   end
-  
-  on :message, /^!w0ny$/i do |m|
-    m.reply "W0NY is a p0ny!"
-  end
-  
-  on :message, /^!kd9dal$/i do |m|
-    m.reply "cuntbunt"
-  end
 
-   on :message, /^!bingbong$/i do |m|
-    m.reply "CHINA!"
-  end
-  
-   on :message, /^!ae5cp$/i do |m|
-    m.reply "SWAGRID"
-  end
-  
-   on :message, /^!tj$/i do |m|
-    m.reply "IT PREASE"
-  end
-  
-   on :message, /^!kilo$/i do |m|
-    m.reply "RF 2 STRONK"
-  end
-  
-   on :message, /^!b0tz$/i do |m|
-    m.reply "JUUUIIICCCEEEE BOOOOOOOOXXXXXX!!!!!11!!!"
-  end
-  
-   on :message, /^!joj$/i do |m|
-    m.reply "Dave's not here!"
-  end
-  
   on :message, /^!hf$/i do |m|
     m.reply "HF Conditions"
     m.reply "Band     Day   Night"
@@ -125,7 +93,7 @@ bot = Cinch::Bot.new do
       night = N0nbh.band_conditions(band, :night)
       m.reply "#{band}  #{day}  #{night}".gsub('Poor', 'AIDS')
     end
-    m.reply "MUF: #{N0nbh['muf']}mhz - Noise: #{N0nbh['signalnoise']} - http://n0nbh.com" 
+    m.reply "MUF: #{N0nbh['muf']}mhz - Noise: #{N0nbh['signalnoise']} - http://n0nbh.com"
   end
 
   on :message, /^!callsign (.*)/i do |m, callsign|
@@ -147,7 +115,7 @@ bot = Cinch::Bot.new do
       end
 
       location << " (#{call['grid']})" if call['grid'] && call['grid'] != ''
-        
+
       response = [call['call'], operator, location, call['bio']].compact.join(' - ')
     rescue QRZCallbook::SessionError => e
       response = e.message
@@ -155,57 +123,6 @@ bot = Cinch::Bot.new do
     m.reply "#{m.user.nick}: #{response}"
   end
 
-  on :message, /^!npota activations (.*)/i do |m, callsign|
-    activations = NPOTA.activations_by_callsign(callsign)
-    if activations.any?
-      m.reply "#{m.user.nick}: #{activations.length} upcoming activations by #{callsign}"
-      activations[0..1].each do |a|
-        m.reply "#{a['Name']} #{a['Type']} (#{a['ARRLCode']}): #{a['StartDate']}Z - #{a['EndDate']}Z - #{a['Comments']}"
-      end
-    else 
-      m.reply "#{m.user.nick}: There are no upcoming activations by #{callsign}"
-    end
-  end
-
-  on :message, /^!hogie/i do |m|
-    
-    callsign = 'N3BBQ-9'
-    location = APRSfi.last_location_for(callsign)
-
-    if location
-      m.reply "#{m.user.nick}: Last APRS Beacon for #{callsign} at #{location['geocoded'][0].address} (#{location['lat']}, #{location['lng']}) - #{time_ago_in_words(location['time'])} ago - http://aprs.fi/#!mt=roadmap&z=13&call=a%2F#{callsign}&timerange=604800&tail=604800"
-    else
-      m.reply "#{m.user.nick}: No APRS locations found"
-    end
-
-    callsign = 'N3BBQ'
-
-    spots = DXWatch.spots_for(callsign)
-
-    begin
-      if spots
-        spots[0..0].each do |s|
-          m.reply "Last Spot: #{s[:frequency]} - #{s[:comment]} - (spotted by #{s[:de]} #{time_ago_in_words(s[:time])} ago)"
-        end
-      else
-        m.reply "No spots found"
-      end
-    rescue OpenURI::HTTPError
-      m.reply "Spots unavailable. Try again later"
-    end
-
-    activations = NPOTA.activations_by_callsign(callsign)
-    if activations.any?
-      m.reply "Upcoming activations by #{callsign}"
-      activations.each do |a|
-        start_date = DateTime.parse(a['StartDate'] + ' UTC').to_time
-        end_date = DateTime.parse(a['EndDate'] + ' UTC').to_time
-        next if Time.now > end_date
-        next if (start_date  - Time.now) > 60*60*24 # dont show if less than 24hr
-        m.reply "#{a['Name']} #{a['Type']} (#{a['ARRLCode']}): #{a['StartDate']}Z - #{a['EndDate']}Z - #{a['Comments']}"
-      end
-    end
-  end
 
   on :message, /^!aprs (.*)/i do |m, callsign|
     location = APRSfi.last_location_for(callsign)
